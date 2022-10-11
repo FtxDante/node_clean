@@ -1,4 +1,6 @@
 const StorageMonitoring = require('./StorageMonitoring');
+const Utils = require('./utils');
 module.exports = {
-  StorageMonitoring: new StorageMonitoring()
+  StorageMonitoring: new StorageMonitoring(),
+  Utils
 }

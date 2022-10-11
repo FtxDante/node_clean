@@ -7,6 +7,7 @@ class StorageMonitoring {
     this.sizeInGB = 0;
     this.counter = 0;
     this.nodeModulesFound = [];
+    this.nodeModulesRemoved = [];
   }
 
   readdir(dirname = __dirname) {
@@ -15,9 +16,10 @@ class StorageMonitoring {
 
   rm() {
     this.nodeModulesFound.forEach((path) => {
-      fs.rmSync(path + '/node_modules', { force: true, recursive: true });
+      const pathToNodeModules = path + '/node_modules'
+      fs.rmSync(pathToNodeModules, { force: true, recursive: true });
       this.saveStatus(MeasureDirectory.measure(path));
-      console.log('\x1b[31m', `--> Deleted with successful, path: ${path}`);
+      this.nodeModulesRemoved.push(pathToNodeModules)
     });
   }
 
@@ -38,7 +40,9 @@ class StorageMonitoring {
   startClean(pathToRead) {
     console.log('I am starting to clean all node_modules, please wait!');
     const archives = this.readdir(pathToRead);
-    this.findNodeModules(archives);
+    if(this.nodeModulesFound.length === 0) {
+      this.findNodeModules(archives);
+    }
     this.rm();
     console.log('A quantidade de node_modules encontrada:', this.nodeModulesFound.length)
 
