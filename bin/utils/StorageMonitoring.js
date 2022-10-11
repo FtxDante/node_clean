@@ -8,6 +8,7 @@ class StorageMonitoring {
     this.counter = 0;
     this.nodeModulesFound = [];
     this.nodeModulesRemoved = [];
+    this.target = 'node_modules'
   }
 
   readdir(dirname = __dirname) {
@@ -16,7 +17,7 @@ class StorageMonitoring {
 
   rm() {
     this.nodeModulesFound.forEach((path) => {
-      const pathToNodeModules = path + '/node_modules'
+      const pathToNodeModules = path + this.target
       fs.rmSync(pathToNodeModules, { force: true, recursive: true });
       this.saveStatus(MeasureDirectory.measure(path));
       this.nodeModulesRemoved.push(pathToNodeModules)
@@ -59,7 +60,7 @@ class StorageMonitoring {
       const nextArchive = `${rootDir}/${file}`;
       try {
         const insideArchive = this.readdir(nextArchive);
-        if (insideArchive.includes('node_modules')) {
+        if (insideArchive.includes(this.target)) {
           this.nodeModulesFound.push(nextArchive);
           return;
         } else {

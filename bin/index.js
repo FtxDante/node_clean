@@ -3,12 +3,21 @@ const { StorageMonitoring } = require('./utils');
 const yargs = require('yargs');
 const storage = StorageMonitoring;
 
-const usage = '\nUsage: npmclean init';
+const usage = `\nUsage:
+              
+            npmcls evanesco      delete all node_modules in current directory`;
+
 const options = yargs
   .usage(usage)
   .option('f', {
     alias: 'find',
     describe: 'Find all node_modules in current directory.',
+    type: 'boolean',
+    demandOption: false,
+  })
+  .option('n', {
+    alias: 'now',
+    describe: 'Delete all node_modules in current directory.',
     type: 'boolean',
     demandOption: false,
   })
@@ -23,10 +32,18 @@ if(yargs.argv.f || yargs.argv.find) {
   }
 
   storage.nodeModulesFound.forEach(pathToNodeModules => {
-    console.log(pathToNodeModules + '/node_modules');
+    console.log(pathToNodeModules + '/' + storage.target);
   })
 }
 
-if (yargs.argv._[0] == 'init') {
+if (!yargs.argv._[0]) {
+  (async () => {
+    console.log(await yargs.getHelp())
+  })()
+  return
+}
+
+if (yargs.argv.n || yargs.argv.node_modules || yargs.argv._[0] === 'evanesco') {
   storage.startClean(process.cwd());
+  return
 }
