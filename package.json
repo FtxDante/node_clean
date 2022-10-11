@@ -1,0 +1,17 @@
+{
+  "name": "node_clean",
+  "version": "1.0.0",
+  "description": "A cleaner of node_modules files",
+  "main": "bin/index.js",
+  "bin": {
+    "npmclean": "bin/index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Dante Rodrigues",
+  "license": "ISC",
+  "dependencies": {
+    "yargs": "^17.6.0"
+  }
+}
