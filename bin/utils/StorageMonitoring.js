@@ -2,17 +2,23 @@ const fs = require('fs');
 const MeasureDirectory = require('./MeasureDirectory');
 
 class StorageMonitoring {
-  sizeInMB = 0;
-  sizeInGB = 0;
-  counter = 0;
+  constructor() {
+    this.sizeInMB = 0;
+    this.sizeInGB = 0;
+    this.counter = 0;
+    this.nodeModulesFound = [];
+  }
 
   readdir(dirname = __dirname) {
     return fs.readdirSync(dirname);
   }
 
-  rm(path) {
-    fs.rmSync(path, { force: true, recursive: true });
-    console.log('\x1b[31m', `--> Deleted with successful, path: ${path}`);
+  rm() {
+    this.nodeModulesFound.forEach((path) => {
+      fs.rmSync(path + '/node_modules', { force: true, recursive: true });
+      this.saveStatus(MeasureDirectory.measure(path));
+      console.log('\x1b[31m', `--> Deleted with successful, path: ${path}`);
+    });
   }
 
   saveStatus({ sizeInMB, sizeInGB }) {
@@ -30,26 +36,27 @@ class StorageMonitoring {
   }
 
   startClean(pathToRead) {
+    console.log('I am starting to clean all node_modules, please wait!');
     const archives = this.readdir(pathToRead);
-    const result = this.findNodeModules(archives);
-    if (result.sizeInMB === 0) {
+    this.findNodeModules(archives);
+    this.rm();
+    console.log('A quantidade de node_modules encontrada:', this.nodeModulesFound.length)
+
+    if (this.sizeInMB === 0) {
       console.log('No node_modules was found');
     }
   }
 
-  findNodeModules(archives = [], rootdir = '.') {
+  findNodeModules(archives = [], rootDir = '.') {
     const counterNow = this.counter;
-    if (counterNow != this.counter) this.printStatus();
+    if (counterNow < this.counter) this.printStatus();
 
     archives.forEach(async (file) => {
-      const nextArchive = `${rootdir}/${file}`;
+      const nextArchive = `${rootDir}/${file}`;
       try {
         const insideArchive = this.readdir(nextArchive);
         if (insideArchive.includes('node_modules')) {
-          const pathToNodeModules = `${nextArchive}/node_modules`;
-          console.log('I am deleting a node_modules, please wait!');
-          this.rm(pathToNodeModules);
-          this.saveStatus(MeasureDirectory.measure(nextArchive));
+          this.nodeModulesFound.push(nextArchive);
           return;
         } else {
           this.findNodeModules(insideArchive, nextArchive);
@@ -60,12 +67,6 @@ class StorageMonitoring {
         }
       }
     });
-
-    return {
-      sizeInMB: this.sizeInMB,
-      sizeInGB: this.sizeInGB,
-      counter: this.counter,
-    };
   }
 }
 

@@ -2,6 +2,7 @@ var fs = require('fs');
 class MeasureDirectory {
   static sizeInMB = 0;
   static sizeInGB = 0;
+
   static readdir(dirname) {
     return fs.readdirSync(dirname);
   }
@@ -11,7 +12,6 @@ class MeasureDirectory {
     var fileSizeInGigaByte = fileSizeInMegabytes / 1024;
     this.sizeInMB += fileSizeInMegabytes;
     this.sizeInGB += fileSizeInGigaByte;
-
   }
 
   static measure(rootDir) {
@@ -25,7 +25,6 @@ class MeasureDirectory {
         } else if (stats.isFile()) {
           this.getSizes(stats);
           return;
-        } else {
         }
       } catch (err) {
         if (!err.message.includes('ENOTDIR: not a directory')) {
@@ -33,7 +32,8 @@ class MeasureDirectory {
         }
       }
     });
-    return { sizeInMB: this.sizeInMB, sizeInGB: this.sizeInGB };
+    return { sizeInMB: this.sizeInMB.toFixed(2), sizeInGB: this.sizeInGB.toFixed(2) };
   }
+
 }
 module.exports = MeasureDirectory;
