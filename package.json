@@ -4,7 +4,7 @@
   "description": "A cleaner of node_modules files",
   "main": "bin/index.js",
   "bin": {
-    "npmcls": "bin/index.js"
+    "nodecls": "bin/index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
