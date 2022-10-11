@@ -63,10 +63,11 @@ class StorageMonitoring {
     console.log('I am starting to clean all node_modules, please wait!');
     const archives = this.readdir(pathToRead);
     this.findNodeModules(archives);
-    this.rm();
-    if (this.sizeInMB === 0) {
+    if (this.nodeModulesFound.length === 0) {
       console.log('None node_modules was found');
+      return;
     }
+    this.rm();
   }
 
   findNodeModules(archives = [], rootDir = '.') {

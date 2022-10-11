@@ -13,5 +13,9 @@
   "license": "ISC",
   "dependencies": {
     "yargs": "^17.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FtxDante/node_clean.git"
   }
 }
