@@ -1,14 +1,37 @@
 const fs = require('fs');
 const MeasureDirectory = require('./MeasureDirectory');
+const rdl = require('readline');
 
 class StorageMonitoring {
   constructor() {
+    this.size = 50;
     this.sizeInMB = 0;
     this.sizeInGB = 0;
     this.counter = 0;
+    this.cursor = 0;
+    this.target = 'node_modules';
+    this.timer;
     this.nodeModulesFound = [];
     this.nodeModulesRemoved = [];
-    this.target = 'node_modules'
+  }
+
+  loadingCLI() {
+    const valueOfOneItem = ((1 / this.nodeModulesFound.length) / 2) * 100;
+
+    process.stdout.write('\x1B[?25l');
+    for (let i = 0; i < this.size; i++) {
+      process.stdout.write('\u2591');
+    }
+    rdl.cursorTo(process.stdout, 0);
+    this.timer = setInterval(() => {
+      for (let i = 0; i < valueOfOneItem; i++) {
+        process.stdout.write('\u2588');
+        this.cursor++;
+      }
+      if (this.cursor >= this.size) {
+        clearTimeout(this.timer);
+      }
+    }, 100);
   }
 
   readdir(dirname = __dirname) {
@@ -16,12 +39,18 @@ class StorageMonitoring {
   }
 
   rm() {
-    this.nodeModulesFound.forEach((path) => {
-      const pathToNodeModules = path + this.target
-      fs.rmSync(pathToNodeModules, { force: true, recursive: true });
-      this.saveStatus(MeasureDirectory.measure(path));
-      this.nodeModulesRemoved.push(pathToNodeModules)
-    });
+    if(this.nodeModulesFound.length <= 0) {
+      return;
+    }
+
+     this.nodeModulesFound.forEach((path) => {
+       const pathToNodeModules = path + '/' + this.target;
+       fs.rmSync(pathToNodeModules, { force: true, recursive: true });
+       this.saveStatus(MeasureDirectory.measure(path));
+       this.nodeModulesRemoved.push(pathToNodeModules);
+     });
+
+     this.loadingCLI();
   }
 
   saveStatus({ sizeInMB, sizeInGB }) {
@@ -30,32 +59,17 @@ class StorageMonitoring {
     this.counter++;
   }
 
-  printStatus() {
-    console.log('\x1b[32m', `Was deleted ${this.counter} node_modules`);
-    this.sizeInGB > 1
-      ? console.log('\x1b[32m', `Was deleted ${this.sizeInGB} GB`)
-      : console.log('\x1b[32m', `Was deleted ${this.sizeInMB} MB`);
-    console.log('--------------------------------------------------------------------------');
-  }
-
   startClean(pathToRead) {
     console.log('I am starting to clean all node_modules, please wait!');
     const archives = this.readdir(pathToRead);
-    if(this.nodeModulesFound.length === 0) {
-      this.findNodeModules(archives);
-    }
+    this.findNodeModules(archives);
     this.rm();
-    console.log('A quantidade de node_modules encontrada:', this.nodeModulesFound.length)
-
     if (this.sizeInMB === 0) {
-      console.log('No node_modules was found');
+      console.log('None node_modules was found');
     }
   }
 
   findNodeModules(archives = [], rootDir = '.') {
-    const counterNow = this.counter;
-    if (counterNow < this.counter) this.printStatus();
-
     archives.forEach(async (file) => {
       const nextArchive = `${rootDir}/${file}`;
       try {

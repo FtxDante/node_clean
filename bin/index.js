@@ -5,7 +5,7 @@ const storage = StorageMonitoring;
 
 const usage = `\nUsage:
               
-            npmcls evanesco      delete all node_modules in current directory`;
+            npmcls evanesco <directory>     delete all node_modules in current directory`;
 
 const options = yargs
   .usage(usage)
@@ -36,14 +36,14 @@ if(yargs.argv.f || yargs.argv.find) {
   })
 }
 
-if (!yargs.argv._[0]) {
-  (async () => {
-    console.log(await yargs.getHelp())
-  })()
-  return
-}
+// if (!yargs.argv._[0]) {
+//   (async () => {
+//     console.log(await yargs.getHelp())
+//   })()
+//   return
+// }
 
-if (yargs.argv.n || yargs.argv.node_modules || yargs.argv._[0] === 'evanesco') {
+if (yargs.argv.e || yargs.argv.evanesco) {
   storage.startClean(process.cwd());
   return
 }
